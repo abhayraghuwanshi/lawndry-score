@@ -6,15 +6,17 @@ import {
   getWeatherByCoords,
   extractWeatherInput,
   extractHours,
+  extractTomorrowHours,
+  extractLocalHour,
   type WeatherData,
 } from "@/services/weatherService";
 import { calculateLaundryScore } from "@/utils/laundryScore";
 import { getVerdict, type Verdict } from "@/utils/verdictGenerator";
-import { findBestWindow } from "@/utils/bestWindow";
+import { findBestWindow, type ClothesType } from "@/utils/bestWindow";
 import ScoreCard from "@/components/ScoreCard";
+import ClothesTypePicker from "@/components/ClothesTypePicker";
 import VerdictBanner from "@/components/VerdictBanner";
 import FunnyMessage from "@/components/FunnyMessage";
-import WeatherStats from "@/components/WeatherStats";
 import BestWindow from "@/components/BestWindow";
 import HourlyTimeline from "@/components/HourlyTimeline";
 
@@ -26,6 +28,7 @@ export default function Home() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [cityInput, setCityInput] = useState("");
+  const [clothesType, setClothesType] = useState<ClothesType>("mixed");
 
   useEffect(() => {
     if (!navigator.geolocation) { setStatus("denied"); return; }
@@ -54,12 +57,15 @@ export default function Home() {
   const verdict: Verdict | null = weather ? getVerdict(score) : null;
   const weatherInput = weather ? extractWeatherInput(weather) : null;
   const hours = weather ? extractHours(weather) : [];
+  const tomorrowHours = weather ? extractTomorrowHours(weather) : [];
   const windowResult = findBestWindow(hours);
+  const tomorrowWindowResult = findBestWindow(tomorrowHours);
+  const localHour = weather ? extractLocalHour(weather) : undefined;
 
   return (
     <>
       <Head>
-        <title>Cool Weather — Should you do laundry today?</title>
+        <title>Hang &amp; Dry — Should you do laundry today?</title>
         <meta name="description" content="The only weather app that judges your laundry decisions." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -83,7 +89,7 @@ export default function Home() {
         <header className="flex items-center justify-between px-6 lg:px-8 py-4 border-b-2 border-ink/8 shrink-0">
           <div className="flex items-baseline gap-3">
             <span className="font-display text-lg tracking-widest text-ink uppercase">
-              Cool Weather
+              Hang &amp; Dry
             </span>
             <span className="font-body text-muted text-xs tracking-wider hidden sm:inline">
               — the laundry forecast
@@ -138,7 +144,7 @@ export default function Home() {
             <div className="h-full flex flex-col lg:grid lg:grid-cols-[2fr_3fr]">
 
               {/* ── Left panel: score ── */}
-              <div className="flex flex-col items-center justify-center gap-3 p-6 lg:p-10 lg:border-r-2 lg:border-ink/8 overflow-hidden">
+              <div className="flex flex-col items-center justify-center gap-3 p-6 lg:px-10 lg:py-12 lg:border-r-2 lg:border-ink/8 overflow-hidden">
                 <ScoreCard
                   score={score}
                   locationName={weather.location.name}
@@ -150,14 +156,15 @@ export default function Home() {
               </div>
 
               {/* ── Right panel: action ── */}
-              <div className="flex flex-col justify-center gap-5 p-6 lg:px-12 lg:py-8 overflow-auto lg:overflow-hidden">
-                <BestWindow result={windowResult} />
+              <div className="flex flex-col gap-5 p-6 lg:px-12 lg:pt-12 lg:pb-8 overflow-auto lg:overflow-y-auto">
+                <ClothesTypePicker value={clothesType} onChange={setClothesType} />
+                <BestWindow result={windowResult} tomorrowResult={tomorrowWindowResult} localHour={localHour} clothesType={clothesType} />
                 <HourlyTimeline
                   hourlyScores={windowResult.hourlyScores}
                   windowStart={windowResult.windowStart}
                   windowEnd={windowResult.windowEnd}
+                  localHour={localHour}
                 />
-                <WeatherStats weather={weatherInput} />
               </div>
 
             </div>

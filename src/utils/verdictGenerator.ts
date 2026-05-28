@@ -14,7 +14,7 @@ interface Tier {
 
 const TIERS: Tier[] = [
   {
-    min: 90,
+    min: 80,
     max: 100,
     label: "PERFECT DAY",
     color: "#22c55e",
@@ -26,8 +26,8 @@ const TIERS: Tier[] = [
     ],
   },
   {
-    min: 70,
-    max: 89,
+    min: 60,
+    max: 79,
     label: "GREAT DAY",
     color: "#84cc16",
     messages: [
@@ -38,8 +38,8 @@ const TIERS: Tier[] = [
     ],
   },
   {
-    min: 50,
-    max: 69,
+    min: 40,
+    max: 59,
     label: "DECENT",
     color: "#D4A017",
     messages: [
@@ -50,8 +50,8 @@ const TIERS: Tier[] = [
     ],
   },
   {
-    min: 30,
-    max: 49,
+    min: 20,
+    max: 39,
     label: "SKETCHY",
     color: "#f97316",
     messages: [
@@ -63,7 +63,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 10,
-    max: 29,
+    max: 19,
     label: "BAD IDEA",
     color: "#ef4444",
     messages: [

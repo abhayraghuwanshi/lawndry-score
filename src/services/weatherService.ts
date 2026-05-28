@@ -17,6 +17,7 @@ export interface WeatherData {
     country: string;
     lat: number;
     lon: number;
+    localtime?: string; // "2024-01-01 14:30" in the city's local time
   };
   current: {
     temp_c: number;
@@ -29,7 +30,7 @@ export interface WeatherData {
     feelslike_c: number;
   };
   forecast?: {
-    forecastday: [{ hour: HourlyWeather[] }];
+    forecastday: Array<{ hour: HourlyWeather[] }>;
   };
 }
 
@@ -40,6 +41,7 @@ export interface WeatherInput {
   precip_mm: number;
   uv: number;
   cloud: number;
+  chance_of_rain?: number; // 0–100; only available in hourly forecast, not current conditions
 }
 
 // Mock hourly data: great morning, decent afternoon, bad evening
@@ -82,7 +84,7 @@ const MOCK_DATA: WeatherData = {
     condition: { text: "Partly Cloudy" },
     feelslike_c: 21,
   },
-  forecast: { forecastday: [{ hour: MOCK_HOURS }] },
+  forecast: { forecastday: [{ hour: MOCK_HOURS }, { hour: MOCK_HOURS }] },
 };
 
 function mockWithName(name: string): WeatherData {
@@ -93,7 +95,7 @@ export async function getWeatherByCoords(lat: number, lon: number): Promise<Weat
   const key = process.env.NEXT_PUBLIC_WEATHERAPI_KEY;
   if (!key) return MOCK_DATA;
   const res = await fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${lat},${lon}&days=1&aqi=no&alerts=no`
+    `https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${lat},${lon}&days=2&aqi=no&alerts=no`
   );
   if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
   return res.json();
@@ -103,7 +105,7 @@ export async function getWeatherByCity(city: string): Promise<WeatherData> {
   const key = process.env.NEXT_PUBLIC_WEATHERAPI_KEY;
   if (!key) return mockWithName(city);
   const res = await fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${encodeURIComponent(city)}&days=1&aqi=no&alerts=no`
+    `https://api.weatherapi.com/v1/forecast.json?key=${key}&q=${encodeURIComponent(city)}&days=2&aqi=no&alerts=no`
   );
   if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
   return res.json();
@@ -122,4 +124,17 @@ export function extractWeatherInput(data: WeatherData): WeatherInput {
 
 export function extractHours(data: WeatherData): HourlyWeather[] {
   return data.forecast?.forecastday?.[0]?.hour ?? [];
+}
+
+export function extractTomorrowHours(data: WeatherData): HourlyWeather[] {
+  return data.forecast?.forecastday?.[1]?.hour ?? [];
+}
+
+// Returns the current hour in the queried city's local timezone, not the browser's.
+export function extractLocalHour(data: WeatherData): number {
+  if (data.location.localtime) {
+    const h = parseInt(data.location.localtime.split(" ")[1].split(":")[0], 10);
+    if (!isNaN(h)) return h;
+  }
+  return new Date().getHours();
 }

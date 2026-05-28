@@ -6,24 +6,29 @@ interface Props {
   hourlyScores: HourScore[];
   windowStart: number | null;
   windowEnd: number | null;
+  localHour?: number;
 }
 
-function shortLabel(h: number): string {
-  if (h === 6) return "6A";
-  if (h === 9) return "9A";
-  if (h === 12) return "12P";
-  if (h === 15) return "3P";
-  if (h === 18) return "6P";
-  return "";
+const SLOTS = [
+  { label: "Morning",   range: "6–9 AM",   hours: [6, 7, 8] },
+  { label: "Midday",    range: "9–12 PM",  hours: [9, 10, 11] },
+  { label: "Afternoon", range: "12–3 PM",  hours: [12, 13, 14] },
+  { label: "Evening",   range: "3–8 PM",   hours: [15, 16, 17, 18, 19, 20] },
+];
+
+function statusLabel(avg: number): string {
+  if (avg >= 80) return "Great";
+  if (avg >= 60) return "Good";
+  if (avg >= 40) return "Ok";
+  if (avg >= 20) return "Poor";
+  return "Bad";
 }
 
-const BAR_H = 56; // px
+export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd, localHour }: Props) {
+  const currentHour = localHour ?? new Date().getHours();
+  const scoreMap = new Map(hourlyScores.map((h) => [h.hour, h.score]));
 
-export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd }: Props) {
-  const currentHour = new Date().getHours();
-  const dayHours = hourlyScores.filter((h) => h.hour >= 6 && h.hour <= 20);
-
-  if (dayHours.length === 0) return null;
+  if (hourlyScores.length === 0) return null;
 
   return (
     <motion.div
@@ -33,57 +38,50 @@ export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd }:
       className="w-full"
     >
       <p className="font-body text-muted text-xs tracking-[0.25em] uppercase text-center mb-3">
-        Hourly Forecast
+        Today at a Glance
       </p>
 
-      {/* Bars */}
-      <div
-        className="flex items-end gap-0.5"
-        style={{ height: `${BAR_H}px` }}
-      >
-        {dayHours.map(({ hour, score }) => {
+      <div className="grid grid-cols-4 gap-2">
+        {SLOTS.map(({ label, range, hours }, i) => {
+          const scores = hours.map((h) => scoreMap.get(h) ?? 0);
+          const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+          const color = getScoreColor(avg);
+          const isPast = currentHour > hours[hours.length - 1];
           const inWindow =
             windowStart !== null &&
             windowEnd !== null &&
-            hour >= windowStart &&
-            hour < windowEnd;
-          const isCurrent = hour === currentHour;
-          const barH = Math.max(3, (score / 100) * BAR_H);
+            hours.some((h) => h >= windowStart && h < windowEnd);
 
           return (
-            <div
-              key={hour}
-              title={`${hour}:00 — score ${score}`}
-              className="flex-1 rounded-t-sm transition-all duration-700"
-              style={{
-                height: `${barH}px`,
-                backgroundColor: getScoreColor(score),
-                opacity: inWindow ? 1 : 0.45,
-                outline: isCurrent ? "2px solid #1C1C2E" : "none",
-                outlineOffset: "1px",
-              }}
-            />
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: isPast ? 0.4 : 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.3 + i * 0.07 }}
+              className="relative border-2 border-ink/10 bg-cream-dark/40 px-3 py-3 flex flex-col gap-1"
+            >
+              {/* colored top accent bar */}
+              <div
+                className="absolute top-0 left-0 right-0 h-[3px]"
+                style={{ backgroundColor: color }}
+              />
+
+              <p className="font-display text-ink leading-none" style={{ fontSize: "1.25rem" }}>
+                {statusLabel(avg)}
+              </p>
+              <p className="font-body text-ink text-xs tracking-wide">{label}</p>
+              <p className="font-body text-muted" style={{ fontSize: "0.65rem" }}>{range}</p>
+
+              {inWindow && !isPast && (
+                <span
+                  className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+              )}
+            </motion.div>
           );
         })}
       </div>
-
-      {/* Labels */}
-      <div className="flex mt-1 gap-0.5">
-        {dayHours.map(({ hour }) => (
-          <div
-            key={hour}
-            className="flex-1 text-center font-body text-muted"
-            style={{ fontSize: "0.6rem" }}
-          >
-            {shortLabel(hour)}
-          </div>
-        ))}
-      </div>
-
-      {/* Legend */}
-      <p className="font-body text-muted/60 text-xs text-center mt-2">
-        Highlighted = recommended drying window
-      </p>
     </motion.div>
   );
 }

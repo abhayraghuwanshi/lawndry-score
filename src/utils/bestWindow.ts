@@ -17,6 +17,18 @@ export interface WindowResult {
   hourlyScores: HourScore[];
 }
 
+export type ClothesType = "light" | "mixed" | "heavy";
+
+// Research-backed adjustments per load type (source: textile drying studies)
+// Light (thin cotton, synthetics): 1–3 hrs in good weather
+// Mixed (shirts, light pants):     2–5 hrs — baseline
+// Heavy (jeans, towels, hoodies):  4–7 hrs minimum
+export function adjustDryHours(base: number, type: ClothesType): number {
+  if (type === "light") return Math.max(1, base - 1);
+  if (type === "heavy") return Math.max(4, base + 2);
+  return base;
+}
+
 export function hrLabel(h: number): string {
   if (h === 0) return "12 AM";
   if (h < 12) return `${h} AM`;
@@ -24,11 +36,12 @@ export function hrLabel(h: number): string {
   return `${h - 12} PM`;
 }
 
+// Baseline dry time for a mixed load — adjusted per clothes type via adjustDryHours
 function estimateDryHours(avgScore: number): number {
-  if (avgScore >= 90) return 2;
-  if (avgScore >= 75) return 3;
-  if (avgScore >= 60) return 4;
-  return 6;
+  if (avgScore >= 80) return 2; // ideal: sun, dry, breezy — mixed load ~2 hrs
+  if (avgScore >= 60) return 3; // good conditions — mixed load ~3 hrs
+  if (avgScore >= 40) return 4; // decent — mixed load ~4 hrs
+  return 5;                     // poor — slow drying, mixed load ~5 hrs
 }
 
 export function findBestWindow(hours: HourlyWeather[]): WindowResult {
@@ -46,6 +59,7 @@ export function findBestWindow(hours: HourlyWeather[]): WindowResult {
         precip_mm: h.precip_mm,
         uv: h.uv,
         cloud: h.cloud,
+        chance_of_rain: h.chance_of_rain,
       }),
     }))
     .filter((h) => h.hour >= FIRST_HOUR && h.hour <= 20);
