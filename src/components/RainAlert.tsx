@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import type { RainAlertData } from "@/utils/rainAlert";
+import { hrLabel } from "@/utils/bestWindow";
 
 interface Props {
   alert: RainAlertData;
@@ -7,6 +8,7 @@ interface Props {
 
 export default function RainAlert({ alert }: Props) {
   const isNow = alert.type === "now";
+  const collectBy = alert.rainHour != null ? hrLabel(alert.rainHour) : null;
 
   return (
     <motion.div
@@ -38,12 +40,18 @@ export default function RainAlert({ alert }: Props) {
       {/* Message */}
       <div>
         <p className="font-display text-ink leading-none" style={{ fontSize: "1.1rem" }}>
-          {isNow ? "It's raining — bring your clothes in." : `Rain in ~${alert.hoursUntil} hour${alert.hoursUntil !== 1 ? "s" : ""}.`}
+          {isNow
+            ? "It's raining — bring your clothes in."
+            : collectBy
+              ? `Collect before ${collectBy} — rain arriving then.`
+              : "Rain on the way — collect your clothes soon."}
         </p>
         <p className="font-body text-muted text-xs mt-1">
           {isNow
             ? "Any laundry outside will get wet."
-            : "Start collecting soon to stay ahead of it."}
+            : collectBy
+              ? `Get your laundry inside before ${collectBy} to stay dry.`
+              : "Start collecting soon to stay ahead of it."}
         </p>
       </div>
     </motion.div>
