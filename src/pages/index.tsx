@@ -13,8 +13,10 @@ import {
 import { calculateLaundryScore } from "@/utils/laundryScore";
 import { getVerdict, type Verdict } from "@/utils/verdictGenerator";
 import { findBestWindow, type ClothesType, adjustScoreForClothesType } from "@/utils/bestWindow";
+import { checkRainAlert } from "@/utils/rainAlert";
 import ScoreCard from "@/components/ScoreCard";
 import ClothesTypePicker from "@/components/ClothesTypePicker";
+import RainAlert from "@/components/RainAlert";
 import VerdictBanner from "@/components/VerdictBanner";
 import FunnyMessage from "@/components/FunnyMessage";
 import BestWindow from "@/components/BestWindow";
@@ -53,15 +55,22 @@ export default function Home() {
     if (city) router.push(`/${encodeURIComponent(city.toLowerCase())}`);
   }
 
-  const baseScore = weather ? calculateLaundryScore(extractWeatherInput(weather)) : 0;
-  const score = adjustScoreForClothesType(baseScore, clothesType);
-  const verdict: Verdict | null = weather ? getVerdict(score) : null;
   const weatherInput = weather ? extractWeatherInput(weather) : null;
   const hours = weather ? extractHours(weather) : [];
   const tomorrowHours = weather ? extractTomorrowHours(weather) : [];
   const windowResult = findBestWindow(hours);
   const tomorrowWindowResult = findBestWindow(tomorrowHours);
   const localHour = weather ? extractLocalHour(weather) : undefined;
+  const rainAlert = weather && localHour !== undefined ? checkRainAlert(weather, localHour) : null;
+
+  const noTodayWindow = !windowResult.hasWindow || windowResult.hangHour === null || windowResult.collectHour === null;
+  const isTodayPast = !noTodayWindow && localHour !== undefined && localHour >= windowResult.collectHour!;
+  const isTomorrow = (noTodayWindow || isTodayPast) && tomorrowWindowResult.hasWindow && tomorrowWindowResult.hangHour !== null;
+
+  const rawBaseScore = weather ? calculateLaundryScore(extractWeatherInput(weather)) : 0;
+  const baseScore = isTomorrow && tomorrowWindowResult.avgScore > 0 ? tomorrowWindowResult.avgScore : rawBaseScore;
+  const score = adjustScoreForClothesType(baseScore, clothesType);
+  const verdict: Verdict | null = weather ? getVerdict(score) : null;
 
   return (
     <>
@@ -153,11 +162,17 @@ export default function Home() {
                   locationCountry={weather.location.country}
                 />
                 <VerdictBanner label={verdict.label} color={verdict.color} />
+                {isTomorrow && (
+                  <p className="font-body text-muted text-xs tracking-[0.2em] uppercase -mt-1">
+                    Tomorrow&rsquo;s forecast
+                  </p>
+                )}
                 <FunnyMessage message={verdict.message} />
               </div>
 
               {/* ── Right panel: action ── */}
               <div className="flex flex-col gap-5 p-6 lg:px-12 lg:pt-12 lg:pb-8 overflow-auto lg:overflow-y-auto">
+                {rainAlert && <RainAlert alert={rainAlert} />}
                 <ClothesTypePicker value={clothesType} onChange={setClothesType} />
                 <BestWindow result={windowResult} tomorrowResult={tomorrowWindowResult} localHour={localHour} clothesType={clothesType} />
                 <HourlyTimeline
