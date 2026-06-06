@@ -4,11 +4,32 @@ import { hrLabel } from "@/utils/bestWindow";
 
 interface Props {
   alert: RainAlertData;
+  // True when rain would catch laundry still out (arrives before the planned collect
+  // time). Urgent red when true or raining now; informational gold otherwise.
+  threatens?: boolean;
 }
 
-export default function RainAlert({ alert }: Props) {
+export default function RainAlert({ alert, threatens = false }: Props) {
   const isNow = alert.type === "now";
-  const collectBy = alert.rainHour != null ? hrLabel(alert.rainHour) : null;
+  const urgent = isNow || threatens;
+  const at = alert.rainHour != null ? hrLabel(alert.rainHour) : null;
+  const accent = urgent ? "#ef4444" : "#F4C430";
+
+  let title: string;
+  let sub: string;
+  if (isNow) {
+    title = "It's raining — bring your clothes in.";
+    sub = "Any laundry outside will get wet.";
+  } else if (threatens && at) {
+    title = `Collect before ${at} — rain arriving then.`;
+    sub = `Get your laundry inside before ${at} to stay dry.`;
+  } else if (at) {
+    title = `Rain expected around ${at}.`;
+    sub = "A heads-up so you can plan your laundry around it.";
+  } else {
+    title = "Rain on the way later today.";
+    sub = "Something to keep in mind for your laundry.";
+  }
 
   return (
     <motion.div
@@ -17,20 +38,20 @@ export default function RainAlert({ alert }: Props) {
       transition={{ duration: 0.35 }}
       className="w-full px-5 py-4 flex items-start gap-4"
       style={{
-        border: `2px solid ${isNow ? "#ef4444" : "#F4C430"}`,
-        backgroundColor: isNow ? "rgba(239,68,68,0.06)" : "rgba(244,196,48,0.08)",
+        border: `2px solid ${accent}`,
+        backgroundColor: urgent ? "rgba(239,68,68,0.06)" : "rgba(244,196,48,0.08)",
       }}
     >
-      {/* Pulsing dot */}
+      {/* Pulsing dot — only while it's actively raining */}
       <div className="relative mt-1 shrink-0">
         <span
           className="block w-2.5 h-2.5 rounded-full"
-          style={{ backgroundColor: isNow ? "#ef4444" : "#F4C430" }}
+          style={{ backgroundColor: accent }}
         />
         {isNow && (
           <motion.span
             className="absolute inset-0 rounded-full"
-            style={{ backgroundColor: "#ef4444" }}
+            style={{ backgroundColor: accent }}
             animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
             transition={{ duration: 1.2, repeat: Infinity }}
           />
@@ -40,19 +61,9 @@ export default function RainAlert({ alert }: Props) {
       {/* Message */}
       <div>
         <p className="font-display text-ink leading-none" style={{ fontSize: "1.1rem" }}>
-          {isNow
-            ? "It's raining — bring your clothes in."
-            : collectBy
-              ? `Collect before ${collectBy} — rain arriving then.`
-              : "Rain on the way — collect your clothes soon."}
+          {title}
         </p>
-        <p className="font-body text-muted text-xs mt-1">
-          {isNow
-            ? "Any laundry outside will get wet."
-            : collectBy
-              ? `Get your laundry inside before ${collectBy} to stay dry.`
-              : "Start collecting soon to stay ahead of it."}
-        </p>
+        <p className="font-body text-muted text-xs mt-1">{sub}</p>
       </div>
     </motion.div>
   );

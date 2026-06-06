@@ -78,16 +78,16 @@ export default function Home() {
   const windowResult = findBestWindow(hours, localHour);
   const tomorrowWindowResult = findBestWindow(tomorrowHours);
   const rawRainAlert = weather && localHour !== undefined ? checkRainAlert(weather, localHour) : null;
-  // Only show "soon" alert if rain arrives before the planned collect time —
-  // that's the only case where it adds new info ("act sooner than planned").
-  // Rain after collect time means the user is already safe following the window.
-  const rainAlert = rawRainAlert?.type === "soon" &&
+  // Always surface the rain time. A "soon" alert "threatens" (urgent red) only when rain
+  // would catch laundry still out — i.e. it arrives before the planned collect time.
+  // Otherwise it's an informational heads-up (gold) since you'd already be done.
+  const rainAlert = rawRainAlert;
+  const rainThreatens =
+    rawRainAlert?.type === "soon" &&
+    rawRainAlert.rainHour !== undefined &&
     windowResult.hasWindow &&
     windowResult.collectHour !== null &&
-    rawRainAlert.rainHour !== undefined &&
-    rawRainAlert.rainHour >= windowResult.collectHour
-    ? null
-    : rawRainAlert;
+    rawRainAlert.rainHour < windowResult.collectHour;
 
   const noTodayWindow = !windowResult.hasWindow || windowResult.hangHour === null || windowResult.collectHour === null;
   const isTodayPast = !noTodayWindow && localHour !== undefined && localHour >= windowResult.collectHour!;
@@ -222,7 +222,7 @@ export default function Home() {
 
               {/* ── Right panel: action ── */}
               <div className="flex flex-col gap-5 p-6 lg:px-12 lg:pt-12 lg:pb-8 overflow-auto lg:overflow-y-auto">
-                {rainAlert && <RainAlert alert={rainAlert} />}
+                {rainAlert && <RainAlert alert={rainAlert} threatens={rainThreatens} />}
                 <ClothesTypePicker value={clothesType} onChange={setClothesType} />
                 <BestWindow result={windowResult} tomorrowResult={tomorrowWindowResult} localHour={localHour} clothesType={clothesType} />
                 <HourlyTimeline
