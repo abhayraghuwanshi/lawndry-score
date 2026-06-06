@@ -94,7 +94,26 @@ export default function Home() {
   const isTomorrow = (noTodayWindow || isTodayPast) && tomorrowWindowResult.hasWindow && tomorrowWindowResult.hangHour !== null;
 
   const rawBaseScore = weather ? calculateLaundryScore(extractWeatherInput(weather)) : 0;
-  const baseScore = isTomorrow && tomorrowWindowResult.avgScore > 0 ? tomorrowWindowResult.avgScore : rawBaseScore;
+
+  // The headline score represents the *recommended* drying window, so the big number
+  // agrees with the BestWindow card. It stays on live conditions only when a window is
+  // active right now (more responsive) or while it's raining (so it matches the alert).
+  const isRainingNow = rawRainAlert?.type === "now";
+  const todayWindowActiveNow =
+    windowResult.hasWindow && !isTodayPast &&
+    windowResult.hangHour !== null &&
+    localHour !== undefined &&
+    localHour >= windowResult.hangHour;
+  const todayWindowUpcoming = windowResult.hasWindow && !isTodayPast && !todayWindowActiveNow;
+
+  const showTomorrowScore = !isRainingNow && isTomorrow && tomorrowWindowResult.avgScore > 0;
+  const showTodayWindowScore =
+    !isRainingNow && !showTomorrowScore && todayWindowUpcoming && windowResult.avgScore > 0;
+  const baseScore = showTomorrowScore
+    ? tomorrowWindowResult.avgScore
+    : showTodayWindowScore
+      ? windowResult.avgScore
+      : rawBaseScore;
   const score = adjustScoreForClothesType(baseScore, clothesType);
   const verdict: Verdict | null = weather ? getVerdict(score) : null;
 
@@ -188,9 +207,14 @@ export default function Home() {
                   locationCountry={weather.location.country}
                 />
                 <VerdictBanner label={verdict.label} color={verdict.color} />
-                {isTomorrow && (
+                {showTomorrowScore && (
                   <p className="font-body text-muted text-xs tracking-[0.2em] uppercase -mt-1">
                     Tomorrow&rsquo;s forecast
+                  </p>
+                )}
+                {showTodayWindowScore && (
+                  <p className="font-body text-muted text-xs tracking-[0.2em] uppercase -mt-1">
+                    Today&rsquo;s best window
                   </p>
                 )}
                 <FunnyMessage message={verdict.message} />

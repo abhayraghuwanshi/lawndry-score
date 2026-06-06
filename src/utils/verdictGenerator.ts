@@ -41,7 +41,7 @@ const TIERS: Tier[] = [
     min: 40,
     max: 59,
     label: "DECENT",
-    color: "#D4A017",
+    color: "#F4C430",
     messages: [
       "Probably fine. Probably.",
       "Not ideal, not terrible. The beige of laundry days.",
