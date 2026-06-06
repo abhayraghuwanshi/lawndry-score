@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { WindowResult, ClothesType } from "@/utils/bestWindow";
 import { hrLabel, adjustDryHours } from "@/utils/bestWindow";
+import DayBadge from "@/components/DayBadge";
 
 interface Props {
   result: WindowResult;
@@ -25,9 +26,12 @@ export default function BestWindow({ result, tomorrowResult, localHour, clothesT
       transition={{ duration: 0.5, delay: 1.15 }}
       className="w-full border-2 border-ink/10 bg-cream-dark/40 px-6 py-5"
     >
-      <p className="font-body text-muted text-xs tracking-[0.25em] uppercase text-center mb-4">
-        {showTomorrow ? "Tomorrow’s Laundry Window" : "Today’s Laundry Window"}
-      </p>
+      <div className="flex flex-col items-center gap-1.5 mb-4">
+        <DayBadge day={showTomorrow ? "tomorrow" : "today"} size="sm" />
+        <p className="font-body text-muted text-xs tracking-[0.25em] uppercase">
+          Laundry Window
+        </p>
+      </div>
 
       {/* Today's window is done, show tomorrow */}
       {showTomorrow && (() => {

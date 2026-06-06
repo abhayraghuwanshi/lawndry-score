@@ -17,6 +17,8 @@ import { checkRainAlert } from "@/utils/rainAlert";
 import ScoreCard from "@/components/ScoreCard";
 import ClothesTypePicker from "@/components/ClothesTypePicker";
 import RainAlert from "@/components/RainAlert";
+import DayBadge from "@/components/DayBadge";
+import ScoreExplainer from "@/components/ScoreExplainer";
 import VerdictBanner from "@/components/VerdictBanner";
 import FunnyMessage from "@/components/FunnyMessage";
 import BestWindow from "@/components/BestWindow";
@@ -207,17 +209,9 @@ export default function Home() {
                   locationCountry={weather.location.country}
                 />
                 <VerdictBanner label={verdict.label} color={verdict.color} />
-                {showTomorrowScore && (
-                  <p className="font-body text-muted text-xs tracking-[0.2em] uppercase -mt-1">
-                    Tomorrow&rsquo;s forecast
-                  </p>
-                )}
-                {showTodayWindowScore && (
-                  <p className="font-body text-muted text-xs tracking-[0.2em] uppercase -mt-1">
-                    Today&rsquo;s best window
-                  </p>
-                )}
+                <DayBadge day={showTomorrowScore ? "tomorrow" : "today"} />
                 <FunnyMessage message={verdict.message} />
+                <ScoreExplainer />
               </div>
 
               {/* ── Right panel: action ── */}
