@@ -1,0 +1,43 @@
+name: Backtest capture
+
+# Saves each day's predicted laundry windows so `verify` can later check them
+# against what actually happened. Runs in the cloud regardless of any local machine.
+
+on:
+  schedule:
+    - cron: "30 3 * * *" # daily at 03:30 UTC
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: write # needed to commit the updated predictions file
+
+concurrency:
+  group: backtest-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Capture tomorrow's predicted windows
+        env:
+          WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+        run: npx --yes tsx scripts/backtest.ts capture
+
+      - name: Commit predictions if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/predictions.jsonl
+          if git diff --staged --quiet; then
+            echo "No new predictions to commit."
+          else
+            git commit -m "chore: capture laundry predictions [skip ci]"
+            git push
+          fi

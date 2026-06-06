@@ -1,0 +1,27 @@
+name: Backtest verify
+
+# Checks captured predictions against what actually happened and prints the
+# "stayed dry %" accuracy to the run log. Read-only — commits nothing.
+
+on:
+  schedule:
+    - cron: "0 4 * * 1" # weekly, Mondays at 04:00 UTC
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify predictions against actual outcomes
+        env:
+          WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+        run: npx --yes tsx scripts/backtest.ts verify
