@@ -22,3 +22,25 @@
 {"capturedAt":"2026-06-06T19:16:06.652Z","city":"Dubai","targetDate":"2026-06-07","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":84}
 {"capturedAt":"2026-06-06T19:16:06.653Z","city":"Berlin","targetDate":"2026-06-07","hasWindow":true,"hangHour":14,"collectHour":17,"avgScore":67}
 {"capturedAt":"2026-06-06T19:16:06.657Z","city":"Cape Town","targetDate":"2026-06-07","hasWindow":true,"hangHour":6,"collectHour":10,"avgScore":58}
+{"capturedAt":"2026-06-07T07:41:07.778Z","city":"Mumbai","targetDate":"2026-06-08","hasWindow":true,"hangHour":10,"collectHour":12,"avgScore":83}
+{"capturedAt":"2026-06-07T07:41:07.780Z","city":"London","targetDate":"2026-06-08","hasWindow":true,"hangHour":8,"collectHour":9,"avgScore":53}
+{"capturedAt":"2026-06-07T07:41:07.782Z","city":"New York","targetDate":"2026-06-08","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":81}
+{"capturedAt":"2026-06-07T07:41:07.783Z","city":"Sydney","targetDate":"2026-06-08","hasWindow":true,"hangHour":10,"collectHour":14,"avgScore":57}
+{"capturedAt":"2026-06-07T07:41:07.787Z","city":"Bangalore","targetDate":"2026-06-08","hasWindow":true,"hangHour":9,"collectHour":12,"avgScore":74}
+{"capturedAt":"2026-06-07T07:41:07.788Z","city":"Singapore","targetDate":"2026-06-08","hasWindow":true,"hangHour":6,"collectHour":9,"avgScore":63}
+{"capturedAt":"2026-06-07T07:41:07.792Z","city":"Tokyo","targetDate":"2026-06-08","hasWindow":true,"hangHour":13,"collectHour":16,"avgScore":60}
+{"capturedAt":"2026-06-07T07:41:07.854Z","city":"Delhi","targetDate":"2026-06-08","hasWindow":true,"hangHour":10,"collectHour":13,"avgScore":72}
+{"capturedAt":"2026-06-07T07:41:07.895Z","city":"Dubai","targetDate":"2026-06-08","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":90}
+{"capturedAt":"2026-06-07T07:41:07.899Z","city":"Sao Paulo","targetDate":"2026-06-08","hasWindow":true,"hangHour":9,"collectHour":12,"avgScore":75}
+{"capturedAt":"2026-06-07T07:41:07.900Z","city":"Cape Town","targetDate":"2026-06-08","hasWindow":true,"hangHour":6,"collectHour":7,"avgScore":51}
+{"capturedAt":"2026-06-07T07:41:07.902Z","city":"Berlin","targetDate":"2026-06-08","hasWindow":true,"hangHour":9,"collectHour":12,"avgScore":73}
+{"capturedAt":"2026-06-08T08:27:55.493Z","city":"Mumbai","targetDate":"2026-06-09","hasWindow":true,"hangHour":10,"collectHour":12,"avgScore":82}
+{"capturedAt":"2026-06-08T08:27:55.495Z","city":"Singapore","targetDate":"2026-06-09","hasWindow":true,"hangHour":11,"collectHour":12,"avgScore":70}
+{"capturedAt":"2026-06-08T08:27:55.496Z","city":"Bangalore","targetDate":"2026-06-09","hasWindow":true,"hangHour":8,"collectHour":10,"avgScore":81}
+{"capturedAt":"2026-06-08T08:27:55.498Z","city":"London","targetDate":"2026-06-09","hasWindow":true,"hangHour":14,"collectHour":17,"avgScore":72}
+{"capturedAt":"2026-06-08T08:27:55.499Z","city":"New York","targetDate":"2026-06-09","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":85}
+{"capturedAt":"2026-06-08T08:27:55.500Z","city":"Delhi","targetDate":"2026-06-09","hasWindow":false,"hangHour":null,"collectHour":null,"avgScore":0}
+{"capturedAt":"2026-06-08T08:27:55.500Z","city":"Sydney","targetDate":"2026-06-09","hasWindow":true,"hangHour":11,"collectHour":15,"avgScore":58}
+{"capturedAt":"2026-06-08T08:27:55.595Z","city":"Dubai","targetDate":"2026-06-09","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":87}
+{"capturedAt":"2026-06-08T08:27:55.608Z","city":"Berlin","targetDate":"2026-06-09","hasWindow":true,"hangHour":14,"collectHour":17,"avgScore":76}
+{"capturedAt":"2026-06-08T08:27:55.630Z","city":"Sao Paulo","targetDate":"2026-06-09","hasWindow":true,"hangHour":6,"collectHour":9,"avgScore":72}
