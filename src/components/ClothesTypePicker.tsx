@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import type { ClothesType } from "@/utils/bestWindow";
 
 interface Props {
@@ -5,43 +6,43 @@ interface Props {
   onChange: (t: ClothesType) => void;
 }
 
-const OPTIONS: { type: ClothesType; label: string; sub: string }[] = [
-  { type: "light", label: "Light",  sub: "shirts · socks" },
-  { type: "mixed", label: "Mixed",  sub: "everyday wash" },
-  { type: "heavy", label: "Heavy",  sub: "jeans · towels" },
+const OPTIONS: { type: ClothesType; label: string }[] = [
+  { type: "light", label: "Light" },
+  { type: "mixed", label: "Mixed" },
+  { type: "heavy", label: "Heavy" },
 ];
 
+// Compact segmented load-type control for the top bar, matching DayToggle.
+// Active option = solid ink; the day toggle owns the gold (tomorrow) accent.
 export default function ClothesTypePicker({ value, onChange }: Props) {
   return (
-    <div className="w-full">
-      <p className="font-body text-muted text-xs tracking-[0.25em] uppercase text-center mb-3">
-        Load Type
-      </p>
-      <div className="grid grid-cols-3 gap-2">
-        {OPTIONS.map(({ type, label, sub }) => (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="inline-flex items-center gap-0.5 border-2 border-ink/15 bg-cream-dark/30 p-0.5"
+      role="tablist"
+      aria-label="Load type"
+    >
+      {OPTIONS.map(({ type, label }) => {
+        const active = value === type;
+        return (
           <button
             key={type}
+            role="tab"
+            aria-selected={active}
             onClick={() => onChange(type)}
-            className={`flex flex-col items-center py-3 px-2 border-2 transition-colors ${
-              value === type
-                ? "border-ink bg-ink text-cream"
-                : "border-ink/15 bg-cream-dark/40 text-ink hover:border-ink/40"
-            }`}
+            className="font-display text-xs tracking-[0.2em] uppercase px-5 py-2 transition-colors"
+            style={
+              active
+                ? { backgroundColor: "#1C1C2E", color: "#F5F0E8" }
+                : { backgroundColor: "transparent", color: "#8A8FA8" }
+            }
           >
-            <span className="font-display text-sm tracking-widest uppercase leading-none">
-              {label}
-            </span>
-            <span
-              className={`font-body text-center mt-1 leading-tight ${
-                value === type ? "text-cream/60" : "text-muted"
-              }`}
-              style={{ fontSize: "0.6rem" }}
-            >
-              {sub}
-            </span>
+            {label}
           </button>
-        ))}
-      </div>
-    </div>
+        );
+      })}
+    </motion.div>
   );
 }

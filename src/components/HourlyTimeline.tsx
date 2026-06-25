@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { getScoreColor } from "@/utils/laundryScore";
 import type { HourScore } from "@/utils/bestWindow";
+import type { Day } from "@/components/DayToggle";
 
 interface Props {
   hourlyScores: HourScore[];
   windowStart: number | null;
   windowEnd: number | null;
   localHour?: number;
+  day?: Day;
 }
 
 const SLOTS = [
@@ -24,8 +26,9 @@ function statusLabel(avg: number): string {
   return "Bad";
 }
 
-export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd, localHour }: Props) {
-  const currentHour = localHour ?? new Date().getHours();
+export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd, localHour, day = "today" }: Props) {
+  // Tomorrow is always upcoming, so nothing is "past" — only dim past slots for today.
+  const currentHour = day === "today" ? (localHour ?? new Date().getHours()) : -1;
   const scoreMap = new Map(hourlyScores.map((h) => [h.hour, h.score]));
 
   if (hourlyScores.length === 0) return null;
@@ -38,7 +41,7 @@ export default function HourlyTimeline({ hourlyScores, windowStart, windowEnd, l
       className="w-full"
     >
       <p className="font-body text-muted text-xs tracking-[0.25em] uppercase text-center mb-3">
-        Today at a Glance
+        {day === "tomorrow" ? "Tomorrow" : "Today"} at a Glance
       </p>
 
       <div className="grid grid-cols-4 gap-2">

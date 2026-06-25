@@ -15,15 +15,14 @@ import { calculateLaundryScore } from "@/utils/laundryScore";
 import { getVerdict, type Verdict } from "@/utils/verdictGenerator";
 import { findBestWindow, type ClothesType, adjustScoreForClothesType } from "@/utils/bestWindow";
 import { checkRainAlert } from "@/utils/rainAlert";
-import ScoreCard from "@/components/ScoreCard";
+import ScorePanel from "@/components/ScorePanel";
 import ClothesTypePicker from "@/components/ClothesTypePicker";
 import RainAlert from "@/components/RainAlert";
-import DayBadge from "@/components/DayBadge";
-import ScoreExplainer from "@/components/ScoreExplainer";
-import VerdictBanner from "@/components/VerdictBanner";
-import FunnyMessage from "@/components/FunnyMessage";
 import BestWindow from "@/components/BestWindow";
 import HourlyTimeline from "@/components/HourlyTimeline";
+import WeatherScene from "@/components/WeatherScene";
+import DayToggle, { type Day } from "@/components/DayToggle";
+import LocationHeader from "@/components/LocationHeader";
 
 export default function CityPage() {
   const router = useRouter();
@@ -33,6 +32,7 @@ export default function CityPage() {
   const [error, setError] = useState("");
   const [cityInput, setCityInput] = useState("");
   const [clothesType, setClothesType] = useState<ClothesType>("mixed");
+  const [selectedDay, setSelectedDay] = useState<Day>("today");
 
   const fetchCity = useCallback(() => {
     if (!city || typeof city !== "string") return;
@@ -80,29 +80,34 @@ export default function CityPage() {
 
   const noTodayWindow = !windowResult.hasWindow || windowResult.hangHour === null || windowResult.collectHour === null;
   const isTodayPast = !noTodayWindow && localHour !== undefined && localHour >= windowResult.collectHour!;
-  const isTomorrow = (noTodayWindow || isTodayPast) && tomorrowWindowResult.hasWindow && tomorrowWindowResult.hangHour !== null;
 
   const rawBaseScore = weather ? calculateLaundryScore(extractWeatherInput(weather)) : 0;
-
-  // The headline score represents the *recommended* drying window, so the big number
-  // agrees with the BestWindow card. It stays on live conditions only when a window is
-  // active right now (more responsive) or while it's raining (so it matches the alert).
   const isRainingNow = rawRainAlert?.type === "now";
+  const avgOfHours = (arr: { score: number }[]) =>
+    arr.length ? Math.round(arr.reduce((s, h) => s + h.score, 0) / arr.length) : 0;
+
+  // Day is chosen explicitly via DayToggle (defaults to today). Today's headline tracks
+  // live conditions while a window is active now or it's raining (so it matches the
+  // alert); otherwise it reflects the recommended window. Tomorrow uses its window avg.
   const todayWindowActiveNow =
     windowResult.hasWindow && !isTodayPast &&
     windowResult.hangHour !== null &&
     localHour !== undefined &&
     localHour >= windowResult.hangHour;
-  const todayWindowUpcoming = windowResult.hasWindow && !isTodayPast && !todayWindowActiveNow;
-
-  const showTomorrowScore = !isRainingNow && isTomorrow && tomorrowWindowResult.avgScore > 0;
-  const showTodayWindowScore =
-    !isRainingNow && !showTomorrowScore && todayWindowUpcoming && windowResult.avgScore > 0;
-  const baseScore = showTomorrowScore
+  const todayBase =
+    todayWindowActiveNow || isRainingNow
+      ? rawBaseScore
+      : windowResult.hasWindow
+        ? windowResult.avgScore
+        : rawBaseScore;
+  const tomorrowBase = tomorrowWindowResult.hasWindow
     ? tomorrowWindowResult.avgScore
-    : showTodayWindowScore
-      ? windowResult.avgScore
-      : rawBaseScore;
+    : avgOfHours(tomorrowWindowResult.hourlyScores);
+
+  const hasTomorrow = tomorrowHours.length > 0;
+  const day: Day = selectedDay === "tomorrow" && hasTomorrow ? "tomorrow" : "today";
+  const activeWindow = day === "tomorrow" ? tomorrowWindowResult : windowResult;
+  const baseScore = day === "tomorrow" ? tomorrowBase : todayBase;
   const score = adjustScoreForClothesType(baseScore, clothesType);
   const verdict: Verdict | null = weather ? getVerdict(score) : null;
 
@@ -154,6 +159,14 @@ export default function CityPage() {
           </form>
         </header>
 
+        {/* Top controls — pick the day (today default) and the load type */}
+        {!loading && !error && weather && (
+          <div className="shrink-0 flex flex-wrap items-center justify-center gap-3 sm:gap-6 py-3 border-b-2 border-ink/8">
+            <DayToggle value={selectedDay} onChange={setSelectedDay} tomorrowDisabled={!hasTomorrow} />
+            <ClothesTypePicker value={clothesType} onChange={setClothesType} />
+          </div>
+        )}
+
         <main className="flex-1 overflow-hidden">
 
           {(loading || error) && (
@@ -176,28 +189,30 @@ export default function CityPage() {
           {!loading && !error && weather && verdict && weatherInput && (
             <div className="h-full flex flex-col lg:grid lg:grid-cols-[2fr_3fr]">
 
-              <div className="flex flex-col items-center justify-center gap-3 p-6 lg:px-10 lg:py-12 lg:border-r-2 lg:border-ink/8 overflow-hidden">
-                <ScoreCard
+              <div className="relative flex flex-col items-center justify-start p-6 lg:px-10 lg:py-12 lg:border-r-2 lg:border-ink/8 overflow-hidden">
+                <WeatherScene score={score} raining={day === "today" && isRainingNow} />
+                <ScorePanel
                   score={score}
-                  locationName={weather.location.name}
-                  locationRegion={weather.location.region}
-                  locationCountry={weather.location.country}
+                  verdictLabel={verdict.label}
+                  verdictColor={verdict.color}
+                  verdictMessage={verdict.message}
                 />
-                <VerdictBanner label={verdict.label} color={verdict.color} />
-                <DayBadge day={showTomorrowScore ? "tomorrow" : "today"} />
-                <FunnyMessage message={verdict.message} />
-                <ScoreExplainer />
               </div>
 
               <div className="flex flex-col gap-5 p-6 lg:px-12 lg:pt-12 lg:pb-8 overflow-auto lg:overflow-y-auto">
-                {rainAlert && <RainAlert alert={rainAlert} threatens={rainThreatens} />}
-                <ClothesTypePicker value={clothesType} onChange={setClothesType} />
-                <BestWindow result={windowResult} tomorrowResult={tomorrowWindowResult} localHour={localHour} clothesType={clothesType} />
+                <LocationHeader
+                  name={weather.location.name}
+                  region={weather.location.region}
+                  country={weather.location.country}
+                />
+                {day === "today" && rainAlert && <RainAlert alert={rainAlert} threatens={rainThreatens} />}
+                <BestWindow result={activeWindow} day={day} localHour={localHour} clothesType={clothesType} />
                 <HourlyTimeline
-                  hourlyScores={windowResult.hourlyScores}
-                  windowStart={windowResult.windowStart}
-                  windowEnd={windowResult.windowEnd}
+                  hourlyScores={activeWindow.hourlyScores}
+                  windowStart={activeWindow.windowStart}
+                  windowEnd={activeWindow.windowEnd}
                   localHour={localHour}
+                  day={day}
                 />
               </div>
 

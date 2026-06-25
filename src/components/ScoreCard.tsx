@@ -22,12 +22,9 @@ const TRACK_PATH = describeArc(CX, CY, R, -135, 135);
 
 interface Props {
   score: number;
-  locationName: string;
-  locationRegion: string;
-  locationCountry: string;
 }
 
-export default function ScoreCard({ score, locationName, locationRegion, locationCountry }: Props) {
+export default function ScoreCard({ score }: Props) {
   const [progress, setProgress] = useState(0);
   const color = getScoreColor(score);
 
@@ -43,19 +40,6 @@ export default function ScoreCard({ score, locationName, locationRegion, locatio
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="flex flex-col items-center gap-1"
     >
-      <p className="font-display text-2xl md:text-3xl text-ink tracking-widest uppercase">
-        {locationName}
-        {locationRegion && locationRegion !== locationName && (
-          <span className="font-body text-muted text-lg md:text-xl font-normal tracking-wide">
-            {", "}
-            {locationRegion}
-          </span>
-        )}
-      </p>
-      <p className="font-body text-muted text-xs tracking-[0.3em] uppercase mb-1">
-        {locationCountry}
-      </p>
-
       <div className="relative" style={{ width: 280, height: 280 }}>
         <svg
           viewBox="0 0 280 280"
@@ -78,7 +62,11 @@ export default function ScoreCard({ score, locationName, locationRegion, locatio
             stroke={color}
             strokeWidth={13}
             fill="none"
-            strokeLinecap="round"
+            // butt (not round): a round cap on a dash whose length == pathLength
+            // renders with a recessed end in Chrome, leaving a gap before the
+            // leftover track. The track's own round caps give the ring its
+            // rounded ends, so the fill meets the remaining track seamlessly.
+            strokeLinecap="butt"
             strokeDasharray={`${progress.toFixed(4)} ${(1 - progress).toFixed(4)}`}
             strokeDashoffset={0}
             style={{

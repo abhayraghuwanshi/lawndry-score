@@ -25,3 +25,76 @@ body::after {
 * {
   box-sizing: border-box;
 }
+
+/* ── Ambient weather scene (WeatherScene.tsx) ── */
+/* Garments swaying on the line. transform-origin sits at the peg (top-centre). */
+@keyframes hd-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+@keyframes hd-sway-soft {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+/* Sun rays breathing in and out. */
+@keyframes hd-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.07);
+    opacity: 1;
+  }
+}
+/* Slow ray rotation. */
+@keyframes hd-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Clouds drifting sideways. */
+@keyframes hd-drift {
+  0%,
+  100% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+}
+/* A single rain streak falling through the panel. */
+@keyframes hd-rain {
+  0% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(105vh);
+    opacity: 0;
+  }
+}
+
+/* Respect users who prefer less motion — keep the scene, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .hd-anim {
+    animation: none !important;
+  }
+}
