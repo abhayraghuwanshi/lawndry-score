@@ -111,12 +111,23 @@ export async function getWeatherByCity(city: string): Promise<WeatherData> {
   return res.json();
 }
 
+// WeatherAPI's current.precip_mm is an accumulated/rounded reading that often shows 0
+// during real light-to-moderate rain (station/model lag). Its condition text is updated
+// independently and is a more reliable "is it raining right now" signal.
+const RAIN_CONDITION_RE = /rain|drizzle|shower|thunderstorm|sleet/i;
+
+export function isRainingCondition(text: string): boolean {
+  return RAIN_CONDITION_RE.test(text);
+}
+
 export function extractWeatherInput(data: WeatherData): WeatherInput {
+  const conditionSaysRain = isRainingCondition(data.current.condition.text);
   return {
     temp_c: data.current.temp_c,
     humidity: data.current.humidity,
     wind_kph: data.current.wind_kph,
-    precip_mm: data.current.precip_mm,
+    // Trust condition text over a precip_mm reading that under-reports light rain.
+    precip_mm: conditionSaysRain ? Math.max(data.current.precip_mm, 0.2) : data.current.precip_mm,
     uv: data.current.uv,
     cloud: data.current.cloud,
   };

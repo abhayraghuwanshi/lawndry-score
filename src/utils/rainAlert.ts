@@ -1,4 +1,4 @@
-import type { WeatherData } from "@/services/weatherService";
+import { isRainingCondition, type WeatherData } from "@/services/weatherService";
 
 export interface RainAlertData {
   type: "now" | "soon";
@@ -6,8 +6,10 @@ export interface RainAlertData {
 }
 
 export function checkRainAlert(data: WeatherData, localHour: number): RainAlertData | null {
-  // Currently raining
-  if (data.current.precip_mm > 0) return { type: "now" };
+  // Currently raining — precip_mm alone under-reports light rain, so also trust condition text.
+  if (data.current.precip_mm > 0 || isRainingCondition(data.current.condition.text)) {
+    return { type: "now" };
+  }
 
   // Scan rest of today for the first hour where rain is likely
   const hours = data.forecast?.forecastday?.[0]?.hour ?? [];
