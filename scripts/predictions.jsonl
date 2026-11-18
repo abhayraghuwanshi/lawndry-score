@@ -1986,3 +1986,15 @@
 {"capturedAt":"2026-11-17T12:16:20.337Z","city":"Sao Paulo","targetDate":"2026-11-18","hasWindow":true,"hangHour":8,"collectHour":11,"avgScore":71}
 {"capturedAt":"2026-11-17T12:16:20.350Z","city":"Berlin","targetDate":"2026-11-18","hasWindow":false,"hangHour":null,"collectHour":null,"avgScore":0}
 {"capturedAt":"2026-11-17T12:16:20.515Z","city":"Sydney","targetDate":"2026-11-18","hasWindow":true,"hangHour":10,"collectHour":13,"avgScore":67}
+{"capturedAt":"2026-11-18T12:03:09.194Z","city":"London","targetDate":"2026-11-19","hasWindow":false,"hangHour":null,"collectHour":null,"avgScore":0}
+{"capturedAt":"2026-11-18T12:03:09.210Z","city":"New York","targetDate":"2026-11-19","hasWindow":true,"hangHour":11,"collectHour":15,"avgScore":56}
+{"capturedAt":"2026-11-18T12:03:09.218Z","city":"Mumbai","targetDate":"2026-11-19","hasWindow":true,"hangHour":6,"collectHour":8,"avgScore":84}
+{"capturedAt":"2026-11-18T12:03:09.231Z","city":"Tokyo","targetDate":"2026-11-19","hasWindow":true,"hangHour":10,"collectHour":13,"avgScore":67}
+{"capturedAt":"2026-11-18T12:03:09.258Z","city":"Bangalore","targetDate":"2026-11-19","hasWindow":true,"hangHour":6,"collectHour":9,"avgScore":76}
+{"capturedAt":"2026-11-18T12:03:09.259Z","city":"Delhi","targetDate":"2026-11-19","hasWindow":true,"hangHour":11,"collectHour":15,"avgScore":53}
+{"capturedAt":"2026-11-18T12:03:09.260Z","city":"Sydney","targetDate":"2026-11-19","hasWindow":true,"hangHour":8,"collectHour":11,"avgScore":70}
+{"capturedAt":"2026-11-18T12:03:09.293Z","city":"Singapore","targetDate":"2026-11-19","hasWindow":false,"hangHour":null,"collectHour":null,"avgScore":0}
+{"capturedAt":"2026-11-18T12:03:09.336Z","city":"Dubai","targetDate":"2026-11-19","hasWindow":true,"hangHour":8,"collectHour":11,"avgScore":78}
+{"capturedAt":"2026-11-18T12:03:09.360Z","city":"Cape Town","targetDate":"2026-11-19","hasWindow":true,"hangHour":9,"collectHour":12,"avgScore":74}
+{"capturedAt":"2026-11-18T12:03:09.382Z","city":"Sao Paulo","targetDate":"2026-11-19","hasWindow":true,"hangHour":9,"collectHour":11,"avgScore":81}
+{"capturedAt":"2026-11-18T12:03:09.545Z","city":"Berlin","targetDate":"2026-11-19","hasWindow":false,"hangHour":null,"collectHour":null,"avgScore":0}
